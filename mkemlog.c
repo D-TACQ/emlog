@@ -26,6 +26,19 @@
 
 #define EMLOG_DEVICE "/dev/emlog"
 
+void make_control_node(const char* emlog_device)
+{
+       FILE *fp = fopen("/sys/class/emlog/emlog/dev", "r");
+       int major;
+       int minor = 241;        /* maybe arbitrary */
+       if (fp == 0){
+               error(1, errno, "/sys/class/emlog/emlog/dev not found");
+       }
+       if (fscanf(fp, "%d:", &major) != 1){
+               error(1, errno, "/sys/class/emlog/emlog/dev failed to scan");
+       }
+       mknod(emlog_device, S_IFCHR|0666, makedev(major, minor));
+}
 #define USAGE "usage: mkemlog <logdevname> [size_in_kilobytes] [mode] [uid]"
 
 int main(int argc, char** argv) {
@@ -87,6 +100,10 @@ int main(int argc, char** argv) {
         if (end_of_number == number) {
             error(1, 0, "Invalid uid provided\n" USAGE);
         }
+    }
+    rc = stat(EMLOG_DEVICE, &emlog_stat);
+    if (rc == -1) {
+        make_control_node(EMLOG_DEVICE);
     }
     rc = stat(EMLOG_DEVICE, &emlog_stat);
     if (rc == -1) {
