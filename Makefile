@@ -8,7 +8,8 @@
 #  make KDIR=/usr/src/linux
 
 KVER ?= $(shell uname -r)
-KDIR ?= /lib/modules/$(KVER)/build
+#KDIR ?= /lib/modules/$(KVER)/build
+KDIR ?= $(KERN_SRC)
 MDIR := emlog
 MVER := 0.70
 
